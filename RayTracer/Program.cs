@@ -9,11 +9,11 @@ using System.Drawing;
 
 namespace RayTracer
 {
-   public partial class Program : Form
+   public partial class Raytracer : Form
     {
         private PictureBox pictureBox1;
 
-        public Program()
+        public Raytracer()
         {
             InitializeComponent();
             render();
@@ -23,7 +23,7 @@ namespace RayTracer
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Program());
+            Application.Run(new Raytracer());
             
         }
 
@@ -71,13 +71,17 @@ namespace RayTracer
             };
 
             Scene scene = new Scene(spheres, lights);
+            Camera cam = new Camera(new Vector3(0, 0, -5));
 
-
-            Program tracer = new Program(new Viewport(2, 2, 1), rendering, scene, new Color(255, 255, 255));
+            Raytracer tracer = new Raytracer(cam, new Viewport((float)rendering.Width / (float)rendering.Height, 1, 1), rendering, scene, new Color(255, 255, 255));
 
             tracer.Render();
             rendering.RotateFlip(RotateFlipType.Rotate180FlipNone);
             this.pictureBox1.Image = rendering;
+
+            //for mac development
+            rendering.Save("renderresult.png");
+
         }
     }
 }
