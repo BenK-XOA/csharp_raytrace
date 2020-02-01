@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using RayTracer.Basic_Objects;
+using RayTracer.Scene_Objects;
 
 
 namespace RayTracer
@@ -22,7 +23,7 @@ namespace RayTracer
         /// <summary>
         /// The canvas we render the pixels to
         /// </summary>
-        public Bitmap canvas { get; private set; }
+        public System.Drawing.Bitmap canvas { get; private set; }
         /// <summary>
         /// The scene containing objects and lights
         /// </summary>
@@ -36,10 +37,7 @@ namespace RayTracer
         /// </summary>
         public Camera camera { get; private set; }
 
-        public Viewport v;
-        public Bitmap canvas;
-        public Scene scene;
-        public Color backgroundcolor;
+       
 
         /// <summary>
         /// Constructs the raytracer
@@ -49,7 +47,7 @@ namespace RayTracer
         /// <param name="_c">the bitmap to render to</param>
         /// <param name="_s">the scene definition</param>
         /// <param name="_bg"><the fallback color/param>
-        public Raytracer(Camera cam, Viewport _v, Bitmap _c, Scene _s, Color _bg)
+        public Raytracer(Camera cam, Viewport _v, System.Drawing.Bitmap _c, Scene _s, Color _bg)
         {
             v = _v;
             canvas = _c;
@@ -89,7 +87,7 @@ namespace RayTracer
         /// <param name="V">Viewport worldpace coordinate of pixel</param>
         /// <param name="s">specularity of object</param>
         /// <returns></returns>
-        float ComputeLighting(Vector3 P, Vector3 N, Vector3 V, float s)
+        double ComputeLighting(Vector3 P, Vector3 N, Vector3 V, float s)
         {
             double intensity = 0.0f;
             double t_max;
@@ -144,7 +142,7 @@ namespace RayTracer
         /// <param name="t_min">nearclip</param>
         /// <param name="t_max">farclip</param>
         /// <returns>Tuple with sphere if hit and distance of hit</returns>
-        (Sphere, float) ClosestIntersection(Vector3 O, Vector3 D, float t_min, float t_max)
+        (Sphere, double) ClosestIntersection(Vector3 O, Vector3 D, double t_min, double t_max)
         {
             double closest_t = double.MaxValue;
             Sphere closest_sphere = null;
@@ -174,7 +172,7 @@ namespace RayTracer
         /// <param name="D">pixel viewport worldspace position</param>
         /// <param name="sphere">sphere to calculate intersection for</param>
         /// <returns>tuple containing both ray intersections with sphere</returns>
-        (float, float) IntersectRaySphere(Vector3 O, Vector3 D, Sphere sphere)
+        (double, double) IntersectRaySphere(Vector3 O, Vector3 D, Sphere sphere)
         {
             Vector3 C = sphere.center;
             double r = sphere.radius;
@@ -204,7 +202,7 @@ namespace RayTracer
         /// <param name="t_max">max hit distance</param>
         /// <param name="depth">maximum reflection trace recursion depth</param>
         /// <returns>color for pixel</returns>
-        Color TraceRay(Vector3 O, Vector3 D, float t_min, float t_max, float depth)
+        Color TraceRay(Vector3 O, Vector3 D, double t_min, double t_max, double depth)
         {
             (Sphere closest_Sphere, double closest_t) = ClosestIntersection(O, D, t_min, t_max);
 
@@ -222,7 +220,7 @@ namespace RayTracer
             double r = closest_Sphere.reflective;
             if (depth <= 0 || r <= 0)
                 return local_color;
-
+            
             //compute reflected color
             Vector3 R = ReflectRay(-D, N);
             Color reflected_color = TraceRay(P, R, 0.001f, double.MaxValue, depth - 1);
@@ -240,43 +238,11 @@ namespace RayTracer
                 for(int y = -canvas.Height / 2; y < canvas.Height / 2; y++)
                 {
                     Vector3 D = CanvasToViewPort(x, y);
-                    Color color = TraceRay(camera.position, D, 1, float.MaxValue, 30);
+                    Color color = TraceRay(camera.transform.Position, D, 1, float.MaxValue, 30);
                     //Console.Write(color.toString());
                     canvas.SetPixel(x + canvas.Width / 2, y + canvas.Height /2, System.Drawing.Color.FromArgb((int)color.r, (int)color.g, (int)color.b));
                 }
             }
-        }
-    }
-
-    /// <summary>
-    /// Struct of viewport
-    /// contains width, height and distance from camera in worldspace units
-    /// try it with 1,1,1, but it's relative to scene objects ofc.
-    /// </summary>
-    public struct Viewport
-    {
-        public double width;
-        public double height;
-        public double distance;
-
-        public Viewport (double _w, double _h, double _d)
-        {
-            width = _w;
-            height = _h;
-            distance = _d;
-        }
-    }
-
-    /// <summary>
-    /// Struct holding data of camera
-    /// </summary>
-    public struct Camera
-    {
-        public Vector3 position;
-
-        public Camera(Vector3 _pos)
-        {
-            position = _pos;
         }
     }
 }

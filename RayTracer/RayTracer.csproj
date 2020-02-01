@@ -60,8 +60,11 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Raytracer.cs" />
+    <Compile Include="Raytracer.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="RenderManager.cs" />
+    <Compile Include="Scene Objects\Camera.cs" />
     <Compile Include="Scene Objects\Scene.cs" />
     <Compile Include="Scene Objects\SceneObject.cs" />
   </ItemGroup>
