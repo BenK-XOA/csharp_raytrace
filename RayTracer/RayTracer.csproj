@@ -47,6 +47,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Basic Objects\Color.cs" />
+    <Compile Include="Basic Objects\Quaternion.cs" />
+    <Compile Include="Basic Objects\Transform.cs" />
+    <Compile Include="Basic Objects\Vector3.cs" />
     <Compile Include="Program.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -56,10 +60,10 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Raytracer.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Scene.cs" />
+    <Compile Include="Raytracer.cs" />
+    <Compile Include="RenderManager.cs" />
+    <Compile Include="Scene Objects\Scene.cs" />
+    <Compile Include="Scene Objects\SceneObject.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -73,5 +77,6 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

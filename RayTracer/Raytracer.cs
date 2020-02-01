@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Drawing;
+
+using RayTracer.Basic_Objects;
 
 
 namespace RayTracer
@@ -35,6 +36,10 @@ namespace RayTracer
         /// </summary>
         public Camera camera { get; private set; }
 
+        public Viewport v;
+        public Bitmap canvas;
+        public Scene scene;
+        public Color backgroundcolor;
 
         /// <summary>
         /// Constructs the raytracer
@@ -86,8 +91,8 @@ namespace RayTracer
         /// <returns></returns>
         float ComputeLighting(Vector3 P, Vector3 N, Vector3 V, float s)
         {
-            float intensity = 0.0f;
-            float t_max;
+            double intensity = 0.0f;
+            double t_max;
             Vector3 L;
             
             foreach(Light light in scene.lights)
@@ -104,16 +109,16 @@ namespace RayTracer
                     else
                     {
                         L = light.direction;
-                        t_max = float.MaxValue;
+                        t_max = double.MaxValue;
                     }
 
                     //Shadow check
-                    (Sphere shadow_sphere, float shadow_t) = ClosestIntersection(P, L, 0.001f, t_max);
+                    (Sphere shadow_sphere, double shadow_t) = ClosestIntersection(P, L, 0.001f, t_max);
                     if (shadow_sphere != null)
                         continue;
 
                     //diffuse
-                    float n_dot_1 = Vector3.Dot(N, L);
+                    double n_dot_1 = Vector3.Dot(N, L);
                     if (n_dot_1 > 0)
                         intensity += light.intensity * n_dot_1 / (Vector3.Length(N) * Vector3.Length(L));
 
@@ -121,9 +126,9 @@ namespace RayTracer
                     if(s != -1)
                     {
                         Vector3 R = ReflectRay(L, N);
-                        float r_dot_v = Vector3.Dot(R, V);
+                        double r_dot_v = Vector3.Dot(R, V);
                         if (r_dot_v > 0)
-                            intensity += light.intensity * (float)Math.Pow(r_dot_v / (Vector3.Length(R) * Vector3.Length(V)), s);
+                            intensity += light.intensity * (double)Math.Pow(r_dot_v / (Vector3.Length(R) * Vector3.Length(V)), s);
                     }
                 }
             }
@@ -141,12 +146,12 @@ namespace RayTracer
         /// <returns>Tuple with sphere if hit and distance of hit</returns>
         (Sphere, float) ClosestIntersection(Vector3 O, Vector3 D, float t_min, float t_max)
         {
-            float closest_t = float.MaxValue;
+            double closest_t = double.MaxValue;
             Sphere closest_sphere = null;
 
             foreach(Sphere sphere in scene.spheres)
             {
-                (float t1, float t2) = IntersectRaySphere(O, D, sphere);
+                (double t1, double t2) = IntersectRaySphere(O, D, sphere);
                 if(t1 > t_min && t1 < t_max && t1 < closest_t)
                 {
                     closest_t = t1;
@@ -172,20 +177,20 @@ namespace RayTracer
         (float, float) IntersectRaySphere(Vector3 O, Vector3 D, Sphere sphere)
         {
             Vector3 C = sphere.center;
-            float r = sphere.radius;
+            double r = sphere.radius;
             Vector3 oc = O - C;
 
-            float k1 = Vector3.Dot(D, D);
-            float k2 = 2 * Vector3.Dot(oc, D);
-            float K3 = Vector3.Dot(oc, oc) - r * r;
+            double k1 = Vector3.Dot(D, D);
+            double k2 = 2 * Vector3.Dot(oc, D);
+            double K3 = Vector3.Dot(oc, oc) - r * r;
 
-            float discriminant = k2 * k2 - 4 * k1 * K3;
+            double discriminant = k2 * k2 - 4 * k1 * K3;
 
             if (discriminant < 0)
-                return (float.MaxValue, float.MaxValue);
+                return (double.MaxValue, double.MaxValue);
 
-            float t1 = (-k2 + (float)Math.Sqrt(discriminant)) / (2 * k1);
-            float t2 = (-k2 - (float)Math.Sqrt(discriminant)) / (2 * k1);
+            double t1 = (-k2 + (double)Math.Sqrt(discriminant)) / (2 * k1);
+            double t2 = (-k2 - (double)Math.Sqrt(discriminant)) / (2 * k1);
 
             return (t1, t2);
         }
@@ -201,7 +206,7 @@ namespace RayTracer
         /// <returns>color for pixel</returns>
         Color TraceRay(Vector3 O, Vector3 D, float t_min, float t_max, float depth)
         {
-            (Sphere closest_Sphere, float closest_t) = ClosestIntersection(O, D, t_min, t_max);
+            (Sphere closest_Sphere, double closest_t) = ClosestIntersection(O, D, t_min, t_max);
 
             if (closest_Sphere == null)
                 return backgroundcolor;
@@ -214,13 +219,13 @@ namespace RayTracer
             Color local_color = closest_Sphere.color * ComputeLighting(P, N, -D, closest_Sphere.specular);
 
             //if we hit recursion limit or object is not reflective, we're done;
-            float r = closest_Sphere.reflective;
+            double r = closest_Sphere.reflective;
             if (depth <= 0 || r <= 0)
                 return local_color;
 
             //compute reflected color
             Vector3 R = ReflectRay(-D, N);
-            Color reflected_color = TraceRay(P, R, 0.001f, float.MaxValue, depth - 1);
+            Color reflected_color = TraceRay(P, R, 0.001f, double.MaxValue, depth - 1);
 
             return local_color * (1 - r) + reflected_color * r;
         }
@@ -250,11 +255,11 @@ namespace RayTracer
     /// </summary>
     public struct Viewport
     {
-        public float width;
-        public float height;
-        public float distance;
+        public double width;
+        public double height;
+        public double distance;
 
-        public Viewport (float _w, float _h, float _d)
+        public Viewport (double _w, double _h, double _d)
         {
             width = _w;
             height = _h;
